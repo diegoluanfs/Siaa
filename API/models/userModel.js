@@ -13,7 +13,9 @@ const User = {
   },
 
   create: async (user) => {
+    console.log('dentro da model');
     const result = await db.query('INSERT INTO users SET ?', user);
+    console.log('dentro da model result: ', result);
     return result[0].insertId;
   },
 

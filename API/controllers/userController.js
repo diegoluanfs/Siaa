@@ -25,9 +25,11 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
+    console.log('Request Body:', req.body);
     const id = await User.create(req.body);
     res.status(201).json({ id });
   } catch (err) {
+    console.error('Error creating user:', err);
     res.status(500).json({ message: err.message });
   }
 };
