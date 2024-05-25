@@ -3,13 +3,13 @@
  */
 
 'use strict';
-const formAuthentication = $('#formAuthentication');
+const formRegistration = document.querySelector('#formRegistration');
 
-$(document).ready(function () {
-  (function() {
+document.addEventListener('DOMContentLoaded', () => {
+  (() => {
     // Form validation for Add new record
-    if (formAuthentication.length) {
-      const fv = FormValidation.formValidation(formAuthentication[0], {
+    if (formRegistration) {
+      const fv = FormValidation.formValidation(formRegistration, {
         fields: {
           username: {
             validators: {
@@ -60,9 +60,7 @@ $(document).ready(function () {
                 message: 'Please confirm password'
               },
               identical: {
-                compare: function () {
-                  return formAuthentication.find('[name="password"]').val();
-                },
+                compare: () => formRegistration.querySelector('[name="password"]').value,
                 message: 'The password and its confirm are not the same'
               },
               stringLength: {
@@ -89,43 +87,53 @@ $(document).ready(function () {
           autoFocus: new FormValidation.plugins.AutoFocus()
         },
         init: instance => {
-          instance.on('plugins.message.placed', function (e) {
+          instance.on('plugins.message.placed', (e) => {
             if (e.element.parentElement.classList.contains('input-group')) {
               e.element.parentElement.insertAdjacentElement('afterend', e.messageElement);
             }
           });
         }
       });
-
-      formAuthentication.on('submit', function (e) {
+      
+      formRegistration.addEventListener('submit', (e) => {
         e.preventDefault();
         e.stopPropagation();
         fv.validate().then(status => {
           if (status === 'Valid') {
             const data = {
+              username: $('#username').val(),
               email: $('#email').val(),
-              password: $('#password').val()
+              password: $('#password').val(),
+              //terms: formRegistration.querySelector('[name="terms"]').checked
             };
-            
-            console.log('data: ', data);
+
             $.ajax({
-              url: 'http://localhost:3000/api/',
+              url: 'http://localhost:3000/api/register',
               type: 'POST',
               contentType: 'application/json',
               data: JSON.stringify(data),
               success: function (response) {
-                console.log('Success:', response);
-              },
-              error: function (error) {
                 Swal.fire({
-                  title: 'Warning!',
-                  text: error,
+                  title: 'Cadastro realizado com sucesso!',
+                  text: 'Cadastro realizado com sucesso! ', response,
                   type: 'warning',
                   customClass: {
                     confirmButton: 'btn btn-primary'
                   },
                   buttonsStyling: false
-                })
+                });
+              },
+              error: function (error) {
+                console.log('error: ', error);
+                Swal.fire({
+                  title: 'Atenção!',
+                  text: error.responseJSON.message,
+                  type: 'warning',
+                  customClass: {
+                    confirmButton: 'btn btn-primary'
+                  },
+                  buttonsStyling: false
+                });
               }
             });
           } else {
@@ -136,15 +144,15 @@ $(document).ready(function () {
     }
 
     //  Two Steps Verification
-    const numeralMask = $('.numeral-mask');
+    const numeralMask = document.querySelectorAll('.numeral-mask');
 
-    // Verification masking
-    if (numeralMask.length) {
-      numeralMask.each(function () {
-        new Cleave(this, {
-          numeral: true
-        });
-      });
-    }
+    // // Verification masking
+    // if (numeralMask.length) {
+    //   numeralMask.forEach(e => {
+    //     new Cleave(e, {
+    //       numeral: true
+    //     });
+    //   });
+    // }
   })();
 });
